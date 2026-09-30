@@ -16,7 +16,11 @@ async function read<T>(table: string, demo: T[]): Promise<T[]> {
       .order('created_at', { ascending: false })
       .order('id')
       .range(start, start + 499);
-    if (error) throw new Error('Không thể tải dữ liệu. Vui lòng thử lại.');
+    if (error) {
+      // Log only safe diagnostics, never keys, cookies, query data or raw responses.
+      console.error('[QHS catalog] Database read failed', { table, code: error.code || 'UNKNOWN' });
+      throw new Error('Không thể tải dữ liệu. Vui lòng thử lại.');
+    }
     rows.push(...(data as T[]));
     if (data.length < 500) return rows;
   }

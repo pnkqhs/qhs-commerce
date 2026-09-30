@@ -79,6 +79,7 @@ Migrations:
 
 - `202609300001_foundation.sql`: 32 bảng public (bao gồm profiles), FK/unique/check/index, 5 role, RLS, audit, rate limit, 5 Storage buckets.
 - `202609300002_integrity.sql`: chống chu trình danh mục, bảo vệ order item snapshot, sequence số đơn.
+- `202610010003_api_grants.sql`: cấp quyền bảng cho API roles, giữ nguyên RLS. Nếu đã chạy hai migration đầu nhưng website báo lỗi, chạy riêng migration này trong SQL Editor của Commerce. Không cần chạy lại seed hoặc reset database.
 
 Specs/gallery/documents/videos là JSONB có hợp đồng Zod, tránh bảng con dư thừa trong Phase 1. Variant và related products có bảng riêng. Commerce có cart/items, orders/items/history, payments/events, địa chỉ. CRM có leads/customers/contacts, opportunities/activities, quotations/items, tasks/notes. Content có posts/categories, pages, projects/products, FAQs. Mọi bảng public bật RLS.
 
