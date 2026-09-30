@@ -2,6 +2,35 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
+test('API grants repair also works before the commerce sequence exists', async () => {
+  const db = new PGlite();
+  try {
+    await db.exec('create role anon; create role authenticated; create role service_role;');
+    for (const table of [
+      'categories',
+      'brands',
+      'products',
+      'product_variants',
+      'related_products',
+      'posts',
+      'post_categories',
+      'pages',
+      'projects',
+      'project_products',
+      'faqs',
+    ]) {
+      await db.exec(`create table public.${table}(id integer);`);
+    }
+    await db.exec(readFileSync('supabase/migrations/202610010003_api_grants.sql', 'utf8'));
+    await db.exec('set role anon');
+    assert.equal((await db.query('select * from public.categories')).rows.length, 0);
+    await assert.rejects(() => db.exec('insert into public.categories values(1)'), {
+      code: '42501',
+    });
+  } finally {
+    await db.close();
+  }
+});
 test('migrations, seed, RLS, role isolation, rate limiting and integrity', async () => {
   const db = new PGlite();
   try {
