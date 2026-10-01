@@ -1,6 +1,10 @@
+import { resolveSiteUrl } from '@/lib/site-url';
 export const site = {
   name: 'Cân điện tử Quốc Hưng',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+  url: resolveSiteUrl(
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL,
+  ),
   phone: process.env.NEXT_PUBLIC_COMPANY_PHONE || '0869031468',
   technicalPhone: '0869271468',
   servicePhone: '0981912347',

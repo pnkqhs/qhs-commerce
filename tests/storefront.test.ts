@@ -2,6 +2,22 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { allowIndexing } from '../src/lib/indexing';
+import { resolveSiteUrl } from '../src/lib/site-url';
+test('deployment URLs replace missing or localhost config and preserve a real production domain', () => {
+  assert.equal(
+    resolveSiteUrl(undefined, 'qhs-commerce.vercel.app'),
+    'https://qhs-commerce.vercel.app',
+  );
+  assert.equal(
+    resolveSiteUrl('http://localhost:3000', 'qhs-commerce.vercel.app'),
+    'https://qhs-commerce.vercel.app',
+  );
+  assert.equal(
+    resolveSiteUrl('https://candientuquochung.com/', 'qhs-commerce.vercel.app'),
+    'https://candientuquochung.com',
+  );
+  assert.equal(resolveSiteUrl('http://localhost:3100'), 'http://localhost:3100');
+});
 import data from '../src/features/catalog/official.json';
 import { solutions } from '../src/features/content/solutions';
 import { knowledge } from '../src/features/content/editorial';

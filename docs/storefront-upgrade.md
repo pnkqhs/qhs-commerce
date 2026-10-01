@@ -25,6 +25,8 @@ The script loads only this project's `.env.local` credentials. No QHS Manager in
 
 Staging defaults to noindex. `NEXT_PUBLIC_SITE_ENV=production` AND a non-Vercel `NEXT_PUBLIC_SITE_URL` are required to allow indexing. Vercel request hostnames additionally receive `X-Robots-Tag: noindex, follow`, even if a production canonical domain is configured. Admin/CRM retain role checks, noindex/nofollow and sitemap exclusion.
 
+Deployment verification found an absent/localhost site URL. The site config now resolves a missing/local URL to Vercel's `VERCEL_PROJECT_PRODUCTION_URL` (or `VERCEL_URL`) so canonicals, OG URLs and the lead API's trusted origin use the actual deployment domain. An explicit real domain remains authoritative. Keep `NEXT_PUBLIC_SITE_URL=https://qhs-commerce.vercel.app` and `NEXT_PUBLIC_SITE_ENV=staging` in staging settings; use the official domain and `production` only for the later domain launch.
+
 Permanent 308 redirects:
 
 - `/giai-phap/can-ban-lon` → `/giai-phap/nha-may-san-xuat`
@@ -53,3 +55,5 @@ Local browser timing is a lab observation, not a Core Web Vitals field score. Re
 Final local production lab observations: desktop 1440px LCP 468ms, mobile 390px LCP 500ms; CLS 0 at both sizes; initial encoded JS 147,830 bytes; initial images 203,310 / 81,144 bytes respectively. All official media together is approximately 2,006 KiB (loaded selectively with responsive image sizes). No broken loaded images or page errors were observed. Run `node scripts/audit-storefront.mjs` against the production server to refresh observations; output is in `artifacts/performance-audit.json`.
 
 Production 404 regression: the root loading boundary caused React #419 when an asynchronous catalogue lookup returned not-found. Removed that global skeleton boundary and scoped the not-found UI to the storefront. Unknown catalogue routes now return HTTP 404 without client recovery errors; authorized page content and private-route redirects still pass browser tests.
+
+First post-deploy remote probe: LCP 8.58s desktop and 1.73s mobile, CLS 0, no broken images or page errors. This first desktop request included cold deployment/image-cache costs; it is not a field score or evidence of a sustained performance target. Monitor cold-cache behavior and production Core Web Vitals before the official domain launch.
