@@ -1,28 +1,48 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import { solutions } from '@/features/content/solutions';
 import { metadata as meta, Breadcrumbs } from '@/lib/seo';
+import { Consultation } from '@/components/storefront/content-body';
 export const metadata = meta(
-  'Giải pháp theo ngành',
-  'Giải pháp cân cho sản xuất, kho vận và nông nghiệp.',
+  'Giải pháp cân theo ngành & quy trình',
+  'Lựa chọn giải pháp cân cho nhà máy, kho vận, nông sản, trạm cân xe tải và quản lý tự động.',
   '/giai-phap',
 );
 export default function Page() {
   return (
-    <div className="container section">
-      <Breadcrumbs items={[{ name: 'Giải pháp', href: '/giai-phap' }]} />
-      <h1>Giải pháp theo ngành</h1>
-      <p className="lead-text">Bắt đầu từ quy trình vận hành để xác định thiết bị phù hợp.</p>
-      <div className="industry-grid">
-        {[
-          ['can-ban-lon', 'Nhà máy & sản xuất'],
-          ['can-ban', 'Kho vận & logistics'],
-          ['dung-cu-nong-san', 'Nông nghiệp & nông sản'],
-        ].map(([slug, title]) => (
-          <Link href={`/giai-phap/${slug}`} key={slug} className="industry-card">
-            <h2>{title}</h2>
-            <p>Trao đổi tải trọng, môi trường và kết nối dữ liệu.</p>Khám phá giải pháp ↗
-          </Link>
-        ))}
+    <>
+      <div className="container section">
+        <Breadcrumbs items={[{ name: 'Giải pháp', href: '/giai-phap' }]} />
+        <p className="eyebrow">TỪ THIẾT BỊ ĐẾN QUY TRÌNH</p>
+        <h1>
+          Giải pháp phù hợp
+          <br />
+          với cách bạn vận hành.
+        </h1>
+        <p className="lead-text">
+          Chọn theo nhu cầu, mặt bằng và luồng dữ liệu. Mỗi hệ thống bắt đầu bằng việc hiểu rõ công
+          việc thực tế.
+        </p>
+        <div className="solution-grid section">
+          {solutions.map((s) => (
+            <Link href={`/giai-phap/${s.slug}`} key={s.slug} className="solution-card">
+              <Image
+                src={s.image}
+                width={600}
+                height={400}
+                sizes="(max-width:760px) 100vw, 33vw"
+                alt={s.title}
+              />
+              <div>
+                <h2>{s.title}</h2>
+                <p>{s.excerpt}</p>
+                <span>Khám phá giải pháp ↗</span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
-    </div>
+      <Consultation />
+    </>
   );
 }

@@ -49,8 +49,25 @@ export default async function Page({
               'Email: đang cập nhật'
             )}
           </p>
-          <div className="map-placeholder">
-            Địa chỉ và bản đồ sẽ được cập nhật sau khi xác minh thông tin doanh nghiệp.
+          <div className="company-details">
+            <h3>{site.legalName}</h3>
+            <p>{site.address}</p>
+            <p>
+              Mã số doanh nghiệp: {site.registration}
+              <br />
+              Giờ làm việc: {site.hours}
+            </p>
+            <p>
+              <a href={`tel:${site.technicalPhone}`}>Kỹ thuật: {site.technicalPhone}</a>
+              <br />
+              <a href={`tel:${site.servicePhone}`}>Bảo hành: {site.servicePhone}</a>
+            </p>
+            <a href={site.map} target="_blank" rel="noopener noreferrer" className="button">
+              Mở chỉ đường ↗
+            </a>
+            <p>
+              <a href={site.source}>Website Quốc Hưng</a>
+            </p>
           </div>
         </div>
         <LeadForm product={product?.id} type={type} />

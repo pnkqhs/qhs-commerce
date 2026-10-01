@@ -69,8 +69,14 @@ test('product validation rejects dangerous URLs, invalid direct prices and malfo
     videos: '[]',
   };
   assert.equal(productSchema.safeParse(p).success, true);
+  assert.equal(
+    productSchema.safeParse({ ...p, featured_image: '/images/official/dau-chi-thi-cti-1000.webp' })
+      .success,
+    true,
+  );
   for (const invalid of [
     { featured_image: 'javascript:alert(1)' },
+    { featured_image: '/images/official/../../secret.webp' },
     { price: '' },
     { sale_price: '9000000' },
     { specs: '<script>' },

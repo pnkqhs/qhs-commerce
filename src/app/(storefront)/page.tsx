@@ -1,33 +1,34 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  ArrowUpRight,
-  Gauge,
-  Wrench,
-  ShieldCheck,
-  Truck,
-  Factory,
-  Wheat,
-  PackageCheck,
-} from 'lucide-react';
-import { categories, products, content, isDemo } from '@/features/catalog/repository';
+import { ArrowUpRight, Wrench, ScanLine, Cable, Monitor, Truck, Check, MapPin } from 'lucide-react';
+import { categories, products, content } from '@/features/catalog/repository';
 import { ProductCard } from '@/components/product/card';
 import { JsonLd, metadata } from '@/lib/seo';
 import { site } from '@/config/site';
+import { Consultation } from '@/components/storefront/content-body';
+import { solutions } from '@/features/content/solutions';
 export const generateMetadata = () =>
   metadata(
-    'Giải pháp cân điện tử cho mọi nhu cầu',
-    'Khám phá thiết bị cân, linh kiện và giải pháp đo lường cho công nghiệp, kho vận, nông sản.',
+    'Giải pháp cân điện tử & trạm cân Quốc Hưng',
+    'Cung cấp, lắp đặt, sửa chữa thiết bị cân điện tử. Giải pháp trạm cân, loadcell, bộ chỉ thị và quản lý dữ liệu tại Quốc Hưng.',
     '/',
-    isDemo(),
   );
 export default async function Home() {
-  const [cats, items, posts, projects] = await Promise.all([
+  const [cats, ps, posts, projects] = await Promise.all([
     categories(),
     products(),
     content('posts'),
     content('projects'),
   ]);
+  const featured = ps.filter((p) => p.featured).slice(0, 8);
+  const categorySlugs = [
+    'can-xe-tai',
+    'can-ban',
+    'can-ban-lon',
+    'cam-bien-khoi-luong',
+    'bo-chi-thi',
+    'dung-cu-nong-san',
+  ];
   return (
     <>
       <JsonLd
@@ -35,7 +36,12 @@ export default async function Home() {
           '@context': 'https://schema.org',
           '@type': 'Organization',
           name: site.name,
+          legalName: site.legalName,
           url: site.url,
+          logo: new URL(site.logo, site.url).href,
+          telephone: site.phone,
+          email: site.email,
+          address: { '@type': 'PostalAddress', streetAddress: site.address, addressCountry: 'VN' },
         }}
       />
       <JsonLd
@@ -46,233 +52,312 @@ export default async function Home() {
           url: site.url,
         }}
       />
-      <section className="hero">
-        <div className="container hero-grid">
-          <div className="hero-copy">
-            <p className="eyebrow">
-              <span /> CHÍNH XÁC TRONG TỪNG GIẢI PHÁP
-            </p>
+      <section className="home-hero">
+        <div className="container home-hero-grid">
+          <div className="home-hero-copy">
+            <p className="eyebrow">CÂN ĐIỆN TỬ QUỐC HƯNG</p>
             <h1>
-              Cân đúng nhu cầu.
+              Chính xác từng phép cân.
               <br />
-              <em>Vững mỗi bước tiến.</em>
+              <em>Vững vàng mỗi công trình.</em>
             </h1>
             <p className="hero-description">
-              Thiết bị cân điện tử và giải pháp đo lường dành cho nhà máy, kho vận, nông sản và trạm
-              cân.
+              Từ thiết bị cân đến trạm cân hoàn chỉnh.
+              <br />
+              Cùng bạn lựa chọn, lắp đặt và duy trì hệ thống phù hợp với thực tế vận hành.
             </p>
             <div className="actions">
               <Link className="button button-primary" href="/san-pham">
-                Khám phá sản phẩm <ArrowUpRight size={18} />
+                Xem sản phẩm <ArrowUpRight size={18} />
               </Link>
               <Link className="text-link" href="/lien-he">
                 Nhận tư vấn kỹ thuật ↗
               </Link>
             </div>
-            <div className="hero-foot">
-              <ShieldCheck size={18} /> Tư vấn cấu hình <span>•</span> Hỗ trợ lắp đặt
+            <div className="hero-service-line">
+              <span>
+                <Check size={15} /> Thiết bị & linh kiện
+              </span>
+              <span>
+                <Check size={15} /> Lắp đặt & sửa chữa
+              </span>
             </div>
           </div>
-          <div className="hero-visual">
-            <div className="technical-label">QHS / INDUSTRIAL WEIGHING SYSTEMS</div>
+          <div className="home-hero-photo">
             <Image
-              src="/images/hero.svg"
-              alt="Minh họa hệ thống cân xe tải và cân công nghiệp"
-              width={820}
-              height={540}
-              priority
+              src="/images/official/tram-can-80-tan-ea-sup-0.webp"
+              fill
+              sizes="(max-width:760px) 100vw, 55vw"
+              alt="Trạm cân xe tải 80 tấn do Quốc Hưng lắp đặt tại Ea Súp"
+              loading="eager"
+              fetchPriority="high"
             />
-            <div className="visual-caption">
-              <span>GIẢI PHÁP CÂN CÔNG NGHIỆP</span>
-              <Link href="/can-xe-tai">
-                Khám phá <ArrowUpRight size={16} />
-              </Link>
+            <span className="photo-index">QHS / CÔNG TRÌNH THỰC TẾ</span>
+            <Link className="hero-photo-caption" href="/du-an/tram-can-80-tan-ea-sup">
+              <div>
+                <span>
+                  <MapPin size={13} /> Ea Súp, Đắk Lắk
+                </span>
+                <strong>Trạm cân xe tải 80 tấn</strong>
+              </div>
+              <ArrowUpRight size={23} />
+            </Link>
+            <div className="hero-mini-photo">
+              <Image
+                src="/images/official/dau-chi-thi-cti-1000.webp"
+                width={180}
+                height={130}
+                sizes="160px"
+                alt="Đầu chỉ thị CTI-1000"
+              />
+              <span>THIẾT BỊ • KẾT NỐI • DỮ LIỆU</span>
             </div>
           </div>
         </div>
       </section>
-      <div className="container benefit-strip">
-        {[
-          [Gauge, 'Lựa chọn đúng tải trọng'],
-          [Wrench, 'Tư vấn kỹ thuật chuyên sâu'],
-          [ShieldCheck, 'Thông tin cấu hình rõ ràng'],
-          [Truck, 'Giải pháp theo công trình'],
-        ].map(([Icon, text], i) => {
-          const I = Icon as typeof Gauge;
-          return (
-            <div key={i}>
-              <I size={25} />
-              <span>{String(text)}</span>
-            </div>
-          );
-        })}
+      <div className="container quick-finder" data-reveal>
+        <div>
+          <span className="eyebrow">BẠN ĐANG CẦN CÂN GÌ?</span>
+          <h2>Tìm đúng thiết bị, nhanh hơn.</h2>
+        </div>
+        <form action="/tim-kiem">
+          <label className="sr-only" htmlFor="quick-query">
+            Nhu cầu hoặc tải trọng
+          </label>
+          <input id="quick-query" name="q" placeholder="Ví dụ: cân bàn, loadcell, 30 kg..." />
+          <button className="button button-primary">
+            Tìm thiết bị <ArrowUpRight size={18} />
+          </button>
+        </form>
       </div>
-      <section className="container section">
+      <section className="container section" data-reveal>
         <div className="section-heading">
           <div>
             <p className="eyebrow">DANH MỤC THIẾT BỊ</p>
-            <h2>Bắt đầu từ nhu cầu của bạn</h2>
+            <h2>Một nhu cầu. Nhiều lựa chọn phù hợp.</h2>
           </div>
-          <Link href="/san-pham">Tất cả danh mục ↗</Link>
+          <Link href="/san-pham">Khám phá catalogue ↗</Link>
         </div>
-        <div className="category-grid">
-          {cats
-            .filter((c) => c.parent_id)
-            .slice(0, 6)
-            .map((c, i) => (
-              <Link className="category-tile" key={c.id} href={`/${c.slug}`}>
-                <span className="category-number">0{i + 1}</span>
-                <Gauge size={32} />
-                <h3>{c.name}</h3>
-                <span>Khám phá thiết bị ↗</span>
-              </Link>
-            ))}
-        </div>
-      </section>
-      <section className="section soft">
-        <div className="container">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">CATALOGUE KỸ THUẬT</p>
-              <h2>Sản phẩm nổi bật</h2>
-            </div>
-            <Link href="/san-pham">Xem toàn bộ sản phẩm ↗</Link>
-          </div>
-          <div className="product-grid">
-            {items
-              .filter((p) => p.featured)
-              .slice(0, 4)
-              .map((p) => (
-                <ProductCard key={p.id} product={p} categories={cats} />
-              ))}
-          </div>
-          {items.length === 0 && (
-            <p className="empty">Catalogue đang được cập nhật. Liên hệ để được tư vấn cấu hình.</p>
-          )}
-        </div>
-      </section>
-      <section className="container section">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">GIẢI PHÁP THEO NGÀNH</p>
-            <h2>Hiểu quy trình. Chọn đúng thiết bị.</h2>
-          </div>
-        </div>
-        <div className="industry-grid">
-          {[
-            [Factory, 'Nhà máy & sản xuất', 'can-ban-lon'],
-            [PackageCheck, 'Kho vận & logistics', 'can-ban'],
-            [Wheat, 'Nông nghiệp & nông sản', 'dung-cu-nong-san'],
-          ].map(([Icon, title, slug], i) => {
-            const I = Icon as typeof Factory;
+        <div className="category-grid photo-categories">
+          {categorySlugs.map((slug) => {
+            const c = cats.find((c) => c.slug === slug);
+            const p = ps.find((p) => p.category_id === c?.id);
+            if (!c) return null;
             return (
-              <Link href={`/giai-phap/${slug}`} className="industry-card" key={i}>
-                <I size={36} />
-                <span>0{i + 1} / GIẢI PHÁP</span>
-                <h3>{String(title)}</h3>
-                <p>Thiết bị phù hợp với môi trường và quy trình vận hành.</p>
-                <ArrowUpRight size={24} />
+              <Link className="category-tile" key={slug} href={`/${slug}`}>
+                <div className="category-photo">
+                  {p && (
+                    <Image
+                      src={p.featured_image}
+                      width={240}
+                      height={170}
+                      sizes="(max-width:760px) 45vw, 200px"
+                      alt={c.name}
+                    />
+                  )}
+                </div>
+                <h3>{c.name}</h3>
+                <span>
+                  Xem sản phẩm <ArrowUpRight size={14} />
+                </span>
               </Link>
             );
           })}
         </div>
       </section>
-      <section className="about-strip">
-        <div className="container about-grid">
-          <div>
-            <p className="eyebrow">VÌ SAO CHỌN QUỐC HƯNG</p>
-            <h2>
-              Không chỉ là thiết bị.
-              <br />
-              Là một giải pháp phù hợp.
-            </h2>
-            <Link href="/gioi-thieu">Tìm hiểu về chúng tôi ↗</Link>
-          </div>
-          <div>
-            <h3>01 / Bắt đầu bằng việc lắng nghe</h3>
-            <p>Làm rõ tải trọng, môi trường và quy trình trước khi đề xuất cấu hình.</p>
-            <h3>02 / Thông tin kỹ thuật minh bạch</h3>
-            <p>Trao đổi tài liệu và thông số cần thiết để bạn có cơ sở lựa chọn.</p>
-            <h3>03 / Hướng đến vận hành lâu dài</h3>
-            <p>Tư vấn lắp đặt, sử dụng và nhu cầu bảo trì theo từng hệ thống.</p>
-          </div>
-        </div>
-      </section>
-      <section className="container section">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">ỨNG DỤNG THỰC TẾ</p>
-            <h2>Dự án & công trình</h2>
-          </div>
-          <Link href="/du-an">Xem dự án ↗</Link>
-        </div>
-        {projects.length ? (
-          projects.slice(0, 3).map((p) => (
-            <Link key={p.id} href={`/du-an/${p.slug}`}>
-              {p.title}
-            </Link>
-          ))
-        ) : (
-          <div className="project-placeholder">
-            <Factory size={48} />
-            <div>
-              <h3>Mỗi công trình có một bài toán riêng.</h3>
-              <p>Hồ sơ dự án đang được biên tập và xác minh trước khi công bố.</p>
+      {featured.length > 0 && (
+        <section className="section soft" data-reveal>
+          <div className="container">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">THIẾT BỊ ĐƯỢC LỰA CHỌN THEO CẤU HÌNH</p>
+                <h2>Khám phá sản phẩm Quốc Hưng</h2>
+              </div>
+              <Link href="/san-pham">Tất cả sản phẩm ↗</Link>
             </div>
-            <Link className="button button-outline" href="/lien-he?type=survey">
-              Trao đổi dự án của bạn ↗
-            </Link>
+            <div className="product-grid">
+              {featured.map((p) => (
+                <ProductCard key={p.id} product={p} categories={cats} />
+              ))}
+            </div>
           </div>
-        )}
-      </section>
-      <section className="container section border-top">
+        </section>
+      )}
+      <section className="container section" data-reveal>
         <div className="section-heading">
           <div>
-            <p className="eyebrow">CẬP NHẬT CATALOGUE</p>
-            <h2>Thiết bị mới trong danh mục</h2>
+            <p className="eyebrow">GIẢI PHÁP THEO NHU CẦU</p>
+            <h2>Hiểu quy trình. Chọn đúng hệ thống.</h2>
           </div>
+          <Link href="/giai-phap">Tất cả giải pháp ↗</Link>
         </div>
-        <div className="product-grid">
-          {items.slice(-4).map((p) => (
-            <ProductCard key={p.id} product={p} categories={cats} />
+        <div className="solution-grid">
+          {solutions.slice(0, 3).map((s, i) => (
+            <Link href={`/giai-phap/${s.slug}`} key={s.slug} className="solution-card">
+              <Image
+                src={s.image}
+                width={600}
+                height={400}
+                sizes="(max-width:760px) 100vw, 33vw"
+                alt={s.title}
+              />
+              <div>
+                <small>0{i + 1} / GIẢI PHÁP</small>
+                <h3>{s.title}</h3>
+                <p>{s.excerpt}</p>
+                <span>
+                  Khám phá giải pháp <ArrowUpRight size={17} />
+                </span>
+              </div>
+            </Link>
           ))}
         </div>
       </section>
-      <section className="container section border-top">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">GÓC KIẾN THỨC</p>
-            <h2>Hiểu thiết bị. Vận hành tốt hơn.</h2>
-          </div>
-          <Link href="/kien-thuc">Tất cả bài viết ↗</Link>
-        </div>
-        {posts.map((p) => (
-          <Link href={`/kien-thuc/${p.slug}`} className="article-preview" key={p.id}>
-            <Image
-              src={p.featured_image || '/images/platform.svg'}
-              width={260}
-              height={170}
-              alt=""
-            />
+      <section className="ecosystem-section" data-reveal>
+        <div className="container">
+          <div className="section-heading">
             <div>
-              <small>{p.is_demo ? 'NỘI DUNG DEMO' : 'KIẾN THỨC KỸ THUẬT'}</small>
-              <h3>{p.title}</h3>
-              <p>{p.excerpt}</p>
+              <p className="eyebrow">HỆ SINH THÁI QUỐC HƯNG</p>
+              <h2>
+                Kết nối thiết bị.
+                <br />
+                Theo dõi cả quy trình.
+              </h2>
             </div>
-            <ArrowUpRight />
+            <p>
+              Từ bàn cân, cảm biến đến nhận diện phương tiện và phần mềm quản lý. Mỗi thành phần
+              được lựa chọn theo nhu cầu của trạm cân.
+            </p>
+          </div>
+          <div className="ecosystem-flow">
+            {[
+              [Truck, '01', 'Bàn cân xe tải'],
+              [Cable, '02', 'Loadcell & bộ chỉ thị'],
+              [ScanLine, '03', 'Camera nhận diện'],
+              [Monitor, '04', 'Phần mềm & dữ liệu'],
+            ].map(([Icon, n, title]) => {
+              const I = Icon as typeof Truck;
+              return (
+                <div key={String(n)}>
+                  <small>{String(n)}</small>
+                  <I size={30} />
+                  <h3>{String(title)}</h3>
+                </div>
+              );
+            })}
+          </div>
+          <Link className="text-link" href="/giai-phap/tram-can-tu-dong">
+            Khám phá trạm cân tự động ↗
           </Link>
-        ))}
-      </section>
-      <section className="container cta-banner">
-        <div>
-          <p className="eyebrow">CÙNG TÌM GIẢI PHÁP</p>
-          <h2>Bạn đang cần loại cân nào?</h2>
-          <p>Chia sẻ nhu cầu. Đội ngũ Quốc Hưng sẽ cùng bạn lựa chọn.</p>
         </div>
-        <Link className="button" href="/lien-he">
-          Nhận tư vấn kỹ thuật <ArrowUpRight size={18} />
-        </Link>
       </section>
+      <section className="container section company-story" data-reveal>
+        <div className="story-photo">
+          <Image
+            src="/images/official/quoc-hung-team.webp"
+            width={750}
+            height={600}
+            sizes="(max-width:760px) 100vw, 50vw"
+            alt="Đội ngũ Cân điện tử Quốc Hưng tại cơ sở doanh nghiệp"
+          />
+          <span>CON NGƯỜI THẬT. CÔNG VIỆC THẬT.</span>
+        </div>
+        <div>
+          <p className="eyebrow">ĐỒNG HÀNH CÙNG VẬN HÀNH</p>
+          <h2>
+            Thiết bị là điểm bắt đầu.
+            <br />
+            Dịch vụ là hành trình tiếp nối.
+          </h2>
+          <p>
+            Quốc Hưng cung cấp, lắp đặt và bảo trì cân điện tử tại Tây Nguyên và Duyên hải miền
+            Trung. Nhu cầu của từng công trình là cơ sở để lựa chọn thiết bị và phương án triển
+            khai.
+          </p>
+          <div className="story-points">
+            <div>
+              <Wrench size={23} />
+              <div>
+                <h3>Kỹ thuật gắn với thực tế</h3>
+                <p>Lắp đặt, sửa chữa, thay thế thiết bị và hỗ trợ hiệu chuẩn.</p>
+              </div>
+            </div>
+            <div>
+              <Monitor size={23} />
+              <div>
+                <h3>Từ cân đo đến quản lý dữ liệu</h3>
+                <p>Tư vấn kết nối thiết bị, camera và phần mềm quản lý cân.</p>
+              </div>
+            </div>
+          </div>
+          <Link className="text-link" href="/gioi-thieu">
+            Tìm hiểu về Quốc Hưng ↗
+          </Link>
+        </div>
+      </section>
+      {projects.length > 0 && (
+        <section className="section soft" data-reveal>
+          <div className="container">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">DẤU ẤN TRÊN TỪNG CÔNG TRÌNH</p>
+                <h2>Từ nhu cầu đến bàn giao thực tế</h2>
+              </div>
+              <Link href="/du-an">Xem các công trình ↗</Link>
+            </div>
+            <div className="project-grid">
+              {projects.slice(0, 3).map((p) => (
+                <Link className="project-card" key={p.id} href={`/du-an/${p.slug}`}>
+                  <div>
+                    <Image
+                      src={p.featured_image}
+                      width={620}
+                      height={420}
+                      sizes="(max-width:760px) 100vw, 33vw"
+                      alt={p.title}
+                    />
+                  </div>
+                  <small>{p.location || 'CÔNG TRÌNH QUỐC HƯNG'}</small>
+                  <h3>{p.title}</h3>
+                  <p>{p.excerpt}</p>
+                  <span>Xem hồ sơ công trình ↗</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+      {posts.length > 0 && (
+        <section className="container section" data-reveal>
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">KIẾN THỨC CÂN ĐIỆN TỬ</p>
+              <h2>Hiểu thiết bị. Chủ động vận hành.</h2>
+            </div>
+            <Link href="/kien-thuc">Đọc thêm kiến thức ↗</Link>
+          </div>
+          <div className="knowledge-grid">
+            {posts.slice(0, 2).map((p) => (
+              <Link key={p.id} href={`/kien-thuc/${p.slug}`} className="knowledge-card">
+                <Image
+                  src={p.featured_image}
+                  width={400}
+                  height={300}
+                  sizes="(max-width:760px) 45vw, 230px"
+                  alt={p.title}
+                />
+                <div>
+                  <small>HƯỚNG DẪN LỰA CHỌN</small>
+                  <h3>{p.title}</h3>
+                  <p>{p.excerpt}</p>
+                  <span>Đọc bài viết ↗</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+      <Consultation title="Bạn đang cần giải pháp cân nào?" />
     </>
   );
 }

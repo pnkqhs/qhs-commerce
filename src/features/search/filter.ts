@@ -11,6 +11,7 @@ export function safeFilters(raw: Record<string, unknown>): Filters {
     'min',
     'max',
     'stock',
+    'spec',
     'sort',
     'page',
   ];
@@ -78,6 +79,7 @@ export function filterProducts(
       (!filters.division || normalize(p.division).includes(normalize(filters.division))) &&
       (!filters.application || normalize(p.application).includes(normalize(filters.application))) &&
       (!filters.stock || p.stock_status === filters.stock) &&
+      (!filters.spec || p.specs.some((s) => `${s.label}:${s.value}` === filters.spec)) &&
       (!filters.min || (price !== null && price >= Number(filters.min))) &&
       (!filters.max || (price !== null && price <= Number(filters.max)))
     );

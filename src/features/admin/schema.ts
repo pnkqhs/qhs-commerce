@@ -17,7 +17,7 @@ const url = z.union([
           new URL(v).pathname.startsWith('/storage/v1/object/public/')),
       'Ảnh phải được tải lên Storage của QHS Commerce',
     ),
-  z.string().regex(/^\/images\/[a-z0-9-]+\.svg$/),
+  z.string().regex(/^\/images\/(?:[a-z0-9-]+\.svg|official\/[a-z0-9-]+\.(?:webp|png|jpg))$/),
 ]);
 const optionalId = z.union([z.uuid(), z.literal('')]).transform((v) => v || null);
 const price = z

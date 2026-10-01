@@ -4,89 +4,156 @@ import { notFound } from 'next/navigation';
 import { content } from '@/features/catalog/repository';
 import { Breadcrumbs, JsonLd } from '@/lib/seo';
 import { site } from '@/config/site';
+import { ContentBody, Consultation } from './content-body';
+import { ProductGallery } from '@/components/product/gallery';
+import { knowledge } from '@/features/content/editorial';
+import official from '@/features/catalog/official.json';
 export async function ContentIndex({ kind }: { kind: 'posts' | 'projects' }) {
   const title = kind === 'posts' ? 'Kiến thức kỹ thuật' : 'Dự án & công trình';
   const path = kind === 'posts' ? '/kien-thuc' : '/du-an';
   const items = await content(kind);
   return (
-    <div className="container section">
-      <Breadcrumbs items={[{ name: title, href: path }]} />
-      <p className="eyebrow">GÓC QUỐC HƯNG</p>
-      <h1>{title}</h1>
-      <p className="lead-text">
-        {kind === 'posts'
-          ? 'Thông tin thiết bị, lựa chọn cấu hình và vận hành hệ thống cân.'
-          : 'Hồ sơ giải pháp và ứng dụng tại các công trình.'}
-      </p>
-      <div className="content-list">
-        {items.map((p) => (
-          <Link className="article-preview" key={p.id} href={`${path}/${p.slug}`}>
-            <Image
-              src={p.featured_image || '/images/truck.svg'}
-              width={260}
-              height={180}
-              alt={p.title}
-            />
-            <div>
-              {p.is_demo && <small>NỘI DUNG DEMO</small>}
-              <h2>{p.title}</h2>
-              <p>{p.excerpt}</p>
-              <span>Đọc tiếp ↗</span>
-            </div>
-          </Link>
-        ))}
-      </div>
-      {!items.length && (
-        <div className="empty">
-          <h2>Nội dung đang được cập nhật</h2>
-          <p>Chúng tôi chỉ công bố hồ sơ dự án sau khi xác minh và có sự đồng ý của khách hàng.</p>
-          <Link href="/lien-he" className="button button-primary">
-            Trao đổi nhu cầu của bạn
-          </Link>
+    <>
+      <div className="container section">
+        <Breadcrumbs items={[{ name: title, href: path }]} />
+        <p className="eyebrow">GÓC QUỐC HƯNG</p>
+        <h1>{title}</h1>
+        <p className="lead-text">
+          {kind === 'posts'
+            ? 'Hiểu thiết bị. Chọn đúng cấu hình. Chuẩn bị tốt cho vận hành.'
+            : 'Hình ảnh và hạng mục triển khai từ những công trình Quốc Hưng đã công bố.'}
+        </p>
+        <div className="solution-grid">
+          {items.map((p) => (
+            <Link className="photo-card" key={p.id} href={`${path}/${p.slug}`} data-reveal>
+              {p.featured_image && (
+                <Image
+                  src={p.featured_image}
+                  width={700}
+                  height={480}
+                  sizes="(max-width:760px) 100vw, 33vw"
+                  alt={p.title}
+                />
+              )}
+              <div>
+                <small>{p.is_demo ? 'NỘI DUNG DEMO' : p.location || 'HƯỚNG DẪN LỰA CHỌN'}</small>
+                <h2>{p.title}</h2>
+                <p>{p.excerpt}</p>
+                <span>Đọc tiếp ↗</span>
+              </div>
+            </Link>
+          ))}
         </div>
-      )}
-    </div>
+        {!items.length && (
+          <div className="empty">
+            <h2>
+              {kind === 'posts'
+                ? 'Bạn cần tìm hiểu loại cân nào?'
+                : 'Trao đổi về công trình của bạn'}
+            </h2>
+            <p>
+              {kind === 'posts'
+                ? 'Gửi câu hỏi về thiết bị, cấu hình hoặc cách vận hành cho đội ngũ kỹ thuật.'
+                : 'Cùng làm rõ mặt bằng, tải trọng và nhu cầu quản lý dữ liệu.'}
+            </p>
+            <Link href="/lien-he" className="button button-primary">
+              Nhận tư vấn
+            </Link>
+          </div>
+        )}
+      </div>
+      <Consultation />
+    </>
   );
 }
 export async function ContentDetail({ kind, slug }: { kind: 'posts' | 'projects'; slug: string }) {
   const item = (await content(kind)).find((p) => p.slug === slug);
   if (!item) notFound();
   const path = kind === 'posts' ? '/kien-thuc' : '/du-an';
+  const editorial = knowledge.find((p) => p.slug === slug);
+  const source =
+    kind === 'posts'
+      ? editorial?.source_url
+      : official.projects.find((p) => p.slug === slug)?.source_url;
   return (
-    <div className="container section">
-      <Breadcrumbs
-        items={[
-          { name: kind === 'posts' ? 'Kiến thức' : 'Dự án', href: path },
-          { name: item.title, href: `${path}/${slug}` },
-        ]}
-      />
-      {!item.is_demo && (
-        <JsonLd
-          data={{
-            '@context': 'https://schema.org',
-            '@type': 'Article',
-            headline: item.title,
-            description: item.excerpt,
-            datePublished: item.created_at,
-            author: { '@type': 'Organization', name: site.name },
-            mainEntityOfPage: new URL(`${path}/${slug}`, site.url).href,
-          }}
+    <>
+      <div className="container section">
+        <Breadcrumbs
+          items={[
+            { name: kind === 'posts' ? 'Kiến thức' : 'Dự án', href: path },
+            { name: item.title, href: `${path}/${slug}` },
+          ]}
         />
-      )}
-      <article className="content-body">
-        {item.is_demo && (
-          <p className="notice">Bài viết DEMO, chưa phải nội dung công bố chính thức.</p>
+        {!item.is_demo && (
+          <JsonLd
+            data={{
+              '@context': 'https://schema.org',
+              '@type': 'Article',
+              headline: item.title,
+              description: item.excerpt,
+              author: { '@type': 'Organization', name: site.name },
+              image: item.featured_image ? new URL(item.featured_image, site.url).href : undefined,
+              mainEntityOfPage: new URL(`${path}/${slug}`, site.url).href,
+            }}
+          />
         )}
-        <h1>{item.title}</h1>
-        <p className="lead-text">{item.excerpt}</p>
-        {item.featured_image && (
-          <Image src={item.featured_image} alt={item.title} width={780} height={500} />
-        )}
-        <div className="rich-text section">{item.content}</div>
-        <Link className="button button-primary" href="/lien-he">
-          Trao đổi với đội ngũ kỹ thuật ↗
-        </Link>
-      </article>
-    </div>
+        <article className="content-body">
+          <p className="eyebrow">{item.location || 'KIẾN THỨC THIẾT BỊ'}</p>
+          <h1>{item.title}</h1>
+          <p className="lead-text">{item.excerpt}</p>
+          {kind === 'projects' ? (
+            <ProductGallery
+              images={item.gallery?.length ? item.gallery : [item.featured_image]}
+              name={item.title}
+            />
+          ) : (
+            item.featured_image && (
+              <Image
+                className="article-hero"
+                src={item.featured_image}
+                alt={item.title}
+                width={1000}
+                height={650}
+                sizes="(max-width:760px) 100vw, 800px"
+                loading="eager"
+                fetchPriority="high"
+              />
+            )
+          )}
+          <ContentBody text={item.content} />
+          {editorial && (
+            <aside className="company-details">
+              <h2>Thiết bị & giải pháp liên quan</h2>
+              <div className="tags">
+                {editorial.links.map((l) => (
+                  <Link key={l.href} href={l.href}>
+                    {l.name} ↗
+                  </Link>
+                ))}
+              </div>
+            </aside>
+          )}
+          {kind === 'projects' && (
+            <p>
+              <Link href="/giai-phap/tram-can-xe-tai">Tìm hiểu giải pháp trạm cân xe tải ↗</Link>
+            </p>
+          )}
+          {source && (
+            <p className="source-note">
+              Biên tập từ hồ sơ công bố trên{' '}
+              <a href={source} target="_blank" rel="noopener noreferrer">
+                website Quốc Hưng ↗
+              </a>
+              .
+            </p>
+          )}
+        </article>
+      </div>
+      <Consultation
+        title={
+          kind === 'projects' ? 'Trao đổi về trạm cân của bạn.' : 'Cần làm rõ cấu hình thiết bị?'
+        }
+      />
+    </>
   );
 }

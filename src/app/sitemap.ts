@@ -1,8 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { categories, products, content, productHref, isDemo } from '@/features/catalog/repository';
 import { site } from '@/config/site';
+import { allowIndexing } from '@/lib/indexing';
+import { solutions } from '@/features/content/solutions';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  if (isDemo()) return [];
+  if (isDemo() || !allowIndexing(site.url)) return [];
   const [cats, ps, posts, projects] = await Promise.all([
     categories(),
     products(),
@@ -13,6 +15,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/',
     '/san-pham',
     '/giai-phap',
+    '/gioi-thieu',
+    ...solutions.map((s) => `/giai-phap/${s.slug}`),
     '/lien-he',
     '/kien-thuc',
     '/du-an',

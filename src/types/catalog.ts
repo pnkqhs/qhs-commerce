@@ -43,6 +43,12 @@ export type Product = {
   videos: string[];
 };
 export type Content = {
+  location?: string;
+  industry?: string;
+  gallery?: string[];
+  result?: string;
+  requirement?: string;
+  solution?: string;
   id: string;
   title: string;
   slug: string;

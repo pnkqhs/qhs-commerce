@@ -1,7 +1,16 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  function next() {
+    const response = NextResponse.next({ request });
+    if (request.nextUrl.hostname.endsWith('.vercel.app'))
+      response.headers.set('X-Robots-Tag', 'noindex, follow');
+    if (/^\/(admin|crm)(\/|$)/.test(request.nextUrl.pathname))
+      response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return response;
+  }
+  let response = next();
+  if (!/^\/(admin|crm|tai-khoan|dang-nhap)(\/|$)/.test(request.nextUrl.pathname)) return response;
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
     return response;
   const client = createServerClient(
@@ -12,7 +21,7 @@ export async function proxy(request: NextRequest) {
         getAll: () => request.cookies.getAll(),
         setAll(values) {
           values.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
+          response = next();
           values.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
         },
       },
@@ -22,5 +31,5 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 export const config = {
-  matcher: ['/admin/:path*', '/crm/:path*', '/tai-khoan/:path*', '/dang-nhap'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.png|images/).*)'],
 };

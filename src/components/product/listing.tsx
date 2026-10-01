@@ -19,6 +19,10 @@ export async function Listing({
   const filters = safeFilters(rawFilters);
   const [cats, bs, ps] = await Promise.all([categories(), brands(), products()]);
   const found = filterProducts(ps, cats, bs, filters, category?.id);
+  const contextProducts = filterProducts(ps, cats, bs, {}, category?.id);
+  const technicalLabels = [
+    ...new Set(contextProducts.flatMap((p) => p.specs.map((s) => s.label))),
+  ].filter((l) => /kích thước|vật liệu|kết nối|cấp bảo vệ|kiểu/i.test(l));
   const pages = Math.max(1, Math.ceil(found.length / 12));
   const page = Math.min(pages, Math.max(1, Number.parseInt(filters.page || '1') || 1));
   function url(n: number) {
@@ -71,8 +75,6 @@ export async function Listing({
               </label>
               {[
                 ['capacity', 'Tải trọng', '300 kg'],
-                ['division', 'Độ chia', '0.1 kg'],
-                ['application', 'Ứng dụng', 'Nhà máy'],
                 ['min', 'Giá từ (₫)', '0'],
                 ['max', 'Giá đến (₫)', '10000000'],
               ].map(([name, label, placeholder]) => (
@@ -87,15 +89,60 @@ export async function Listing({
                   />
                 </label>
               ))}
-              <label>
-                Tình trạng
-                <select name="stock" defaultValue={filters.stock || ''}>
-                  <option value="">Tất cả</option>
-                  <option value="in_stock">Còn hàng</option>
-                  <option value="out_of_stock">Hết hàng</option>
-                  <option value="contact">Liên hệ</option>
-                </select>
-              </label>
+              <details
+                className="advanced-filters"
+                open={Boolean(
+                  filters.division || filters.application || filters.spec || filters.stock,
+                )}
+              >
+                <summary>Bộ lọc nâng cao</summary>
+                {contextProducts.some((p) => p.division) && (
+                  <label>
+                    Độ chia
+                    <input name="division" defaultValue={filters.division} />
+                  </label>
+                )}
+                <label>
+                  Ứng dụng
+                  <input
+                    name="application"
+                    defaultValue={filters.application}
+                    placeholder="Kho hàng, thu mua..."
+                  />
+                </label>
+                {technicalLabels.length > 0 && (
+                  <label>
+                    Thông số kỹ thuật
+                    <select name="spec" defaultValue={filters.spec || ''}>
+                      <option value="">Tất cả cấu hình</option>
+                      {technicalLabels.map((label) => (
+                        <optgroup key={label} label={label}>
+                          {[
+                            ...new Set(
+                              contextProducts.flatMap((p) =>
+                                p.specs.filter((s) => s.label === label).map((s) => s.value),
+                              ),
+                            ),
+                          ].map((value) => (
+                            <option key={value} value={`${label}:${value}`}>
+                              {value}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                <label>
+                  Tình trạng
+                  <select name="stock" defaultValue={filters.stock || ''}>
+                    <option value="">Tất cả</option>
+                    <option value="in_stock">Còn hàng</option>
+                    <option value="out_of_stock">Hết hàng</option>
+                    <option value="contact">Liên hệ</option>
+                  </select>
+                </label>
+              </details>
               <label>
                 Sắp xếp
                 <select name="sort" defaultValue={filters.sort || ''}>

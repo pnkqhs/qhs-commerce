@@ -1,18 +1,22 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { site } from '@/config/site';
+import { allowIndexing } from './indexing';
 export function metadata(
   title: string,
   description: string,
   path: string,
   noindex = false,
-  image = '/images/truck.svg',
+  image = '/images/official/tram-can-80-tan-ea-sup-0.webp',
 ): Metadata {
   return {
     title,
     description,
     alternates: { canonical: path },
-    robots: { index: !noindex && process.env.DEMO_MODE !== 'true', follow: true },
+    robots: {
+      index: !noindex && process.env.DEMO_MODE !== 'true' && allowIndexing(site.url),
+      follow: true,
+    },
     openGraph: { title, description, url: path, locale: 'vi_VN', type: 'website', images: [image] },
     twitter: { card: 'summary_large_image', title, description, images: [image] },
   };

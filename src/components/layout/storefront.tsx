@@ -1,88 +1,103 @@
 import Link from 'next/link';
-import { Search, UserRound, ShoppingCart, ArrowUpRight, Menu } from 'lucide-react';
-import { categories, isDemo } from '@/features/catalog/repository';
+import Image from 'next/image';
+import { UserRound, ShoppingCart, Phone, ArrowUpRight } from 'lucide-react';
+import { categories, products, productHref, isDemo } from '@/features/catalog/repository';
 import { policies, site } from '@/config/site';
+import { GlobalSearch } from '@/components/storefront/search';
+import { MegaMenu } from './mega-menu';
 export async function Header() {
-  const cats = await categories();
+  const [cats, ps] = await Promise.all([categories(), products()]);
   return (
     <>
       <a className="skip-link" href="#main">
         Bỏ qua điều hướng
       </a>
       {isDemo() && (
-        <div className="demo-bar">
-          BẢN XEM TRƯỚC · Sản phẩm và thông số DEMO, chưa dùng để giao dịch
-        </div>
+        <div className="demo-bar">BẢN XEM TRƯỚC · Dữ liệu DEMO, chưa dùng để giao dịch</div>
       )}
       <div className="topbar">
         <div className="container">
-          <span>Thiết bị cân & giải pháp đo lường</span>
-          <Link href="/lien-he">Kết nối đội ngũ kỹ thuật ↗</Link>
+          <span>{site.address}</span>
+          <a href={`tel:${site.phone}`}>
+            <Phone size={12} /> Kinh doanh: {site.phone}
+          </a>
         </div>
       </div>
-      <header>
+      <header className="site-header">
         <div className="container header-main">
           <Link href="/" className="brand" aria-label="Quốc Hưng - Trang chủ">
-            <strong>
-              QHS<span>▰</span>
-            </strong>
-            <small>CÂN ĐIỆN TỬ QUỐC HƯNG</small>
-          </Link>
-          <form action="/tim-kiem" className="search">
-            <Search size={20} />
-            <input
-              name="q"
-              aria-label="Tìm sản phẩm"
-              placeholder="Tìm tên sản phẩm, model, mã SKU..."
+            <Image
+              src={site.logo}
+              width={270}
+              height={84}
+              sizes="(max-width:760px) 210px, 270px"
+              alt="Cân điện tử Quốc Hưng"
+              loading="eager"
+              fetchPriority="high"
             />
-            <button aria-label="Tìm kiếm">
-              <ArrowUpRight size={20} />
-            </button>
-          </form>
+          </Link>
+          <GlobalSearch
+            suggestions={ps
+              .filter((p) => !p.is_demo)
+              .map((p) => ({ name: p.name, href: productHref(p, cats) }))}
+          />
           <div className="header-actions">
             <Link href="/tai-khoan" aria-label="Tài khoản">
-              <UserRound size={22} />
+              <UserRound size={21} />
               <span>Tài khoản</span>
             </Link>
             <Link href="/gio-hang" aria-label="Giỏ hàng">
-              <ShoppingCart size={22} />
+              <ShoppingCart size={21} />
               <span>Giỏ hàng</span>
             </Link>
           </div>
         </div>
         <nav className="container desktop-nav" aria-label="Điều hướng chính">
-          <details className="mega">
-            <summary>
-              <Menu size={18} /> Danh mục sản phẩm <span>⌄</span>
-            </summary>
-            <div className="mega-panel">
-              <div className="mobile-menu-links">
-                <strong>Khám phá Quốc Hưng</strong>
-                <Link href="/san-pham">Tất cả sản phẩm</Link>
-                <Link href="/giai-phap">Giải pháp</Link>
-                <Link href="/du-an">Dự án</Link>
-                <Link href="/kien-thuc">Kiến thức</Link>
-                <Link href="/gioi-thieu">Về Quốc Hưng</Link>
-              </div>
-              {cats
-                .filter((c) => !c.parent_id)
-                .map((parent) => (
-                  <div key={parent.id}>
-                    <Link href={`/${parent.slug}`}>
-                      <strong>{parent.name}</strong>
-                    </Link>
-                    {cats
-                      .filter((c) => c.parent_id === parent.id)
-                      .map((c) => (
-                        <Link key={c.id} href={`/${c.slug}`}>
-                          {c.name}
-                        </Link>
-                      ))}
-                  </div>
-                ))}
+          <MegaMenu>
+            <div className="mobile-menu-links">
+              <strong>Khám phá Quốc Hưng</strong>
+              {[
+                ['/san-pham', 'Tất cả sản phẩm'],
+                ['/giai-phap', 'Giải pháp'],
+                ['/du-an', 'Dự án'],
+                ['/kien-thuc', 'Kiến thức'],
+                ['/gioi-thieu', 'Về Quốc Hưng'],
+              ].map(([href, label]) => (
+                <Link key={href} href={href}>
+                  {label}
+                </Link>
+              ))}
             </div>
-          </details>
-          <Link href="/san-pham">Tất cả sản phẩm</Link>
+            {cats
+              .filter((c) => !c.parent_id)
+              .map((parent) => (
+                <div key={parent.id}>
+                  <Link href={`/${parent.slug}`}>
+                    <strong>{parent.name}</strong>
+                  </Link>
+                  {cats
+                    .filter((c) => c.parent_id === parent.id)
+                    .map((c) => (
+                      <Link href={`/${c.slug}`} key={c.id}>
+                        {c.name}
+                      </Link>
+                    ))}
+                </div>
+              ))}
+            <Link href="/giai-phap/tram-can-xe-tai" className="mega-feature">
+              <Image
+                src="/images/official/tram-can-khanh-vinh-1.webp"
+                width={380}
+                height={220}
+                alt="Trạm cân Quốc Hưng tại Khánh Vĩnh"
+              />
+              <strong>Giải pháp trạm cân xe tải</strong>
+              <span>
+                Từ mặt bằng đến vận hành <ArrowUpRight size={16} />
+              </span>
+            </Link>
+          </MegaMenu>
+          <Link href="/san-pham">Sản phẩm</Link>
           <Link href="/giai-phap">Giải pháp</Link>
           <Link href="/du-an">Dự án</Link>
           <Link href="/kien-thuc">Kiến thức</Link>
@@ -95,27 +110,39 @@ export async function Header() {
 }
 export function Footer() {
   return (
-    <footer>
+    <footer className="site-footer">
       <div className="container footer-grid">
         <div>
-          <Link className="footer-logo" href="/">
-            QHS<span>▰</span>
+          <Link href="/" className="footer-logo">
+            <Image
+              src={site.logo}
+              width={270}
+              height={84}
+              sizes="270px"
+              alt="Cân điện tử Quốc Hưng"
+            />
           </Link>
-          <h3>Cân điện tử Quốc Hưng</h3>
+          <h3>{site.legalName}</h3>
           <p>
-            Giải pháp cân phù hợp.
-            <br />
-            Đồng hành cùng vận hành của bạn.
+            Thiết bị cân, giải pháp trạm cân và dịch vụ kỹ thuật cho doanh nghiệp, cơ sở sản xuất và
+            điểm thu mua.
           </p>
-          <small>Thông tin pháp lý, địa chỉ và mã số thuế đang chờ doanh nghiệp cung cấp.</small>
+          <p>{site.address}</p>
+          <small>
+            ĐKDN số {site.registration}
+            <br />
+            Giờ mở cửa: {site.hours}
+          </small>
         </div>
         <div>
-          <h3>Khám phá</h3>
+          <h3>Sản phẩm & giải pháp</h3>
           {[
-            ['/san-pham', 'Sản phẩm'],
-            ['/giai-phap', 'Giải pháp'],
-            ['/du-an', 'Dự án'],
-            ['/kien-thuc', 'Kiến thức'],
+            ['/can-xe-tai', 'Cân xe tải'],
+            ['/can-ban', 'Cân bàn điện tử'],
+            ['/cam-bien-khoi-luong', 'Loadcell & cảm biến'],
+            ['/bo-chi-thi', 'Bộ chỉ thị'],
+            ['/giai-phap/tram-can-tu-dong', 'Trạm cân tự động'],
+            ['/giai-phap/nong-nghiep-nong-san', 'Nông nghiệp & nông sản'],
           ].map(([href, label]) => (
             <Link key={href} href={href}>
               {label}
@@ -123,28 +150,40 @@ export function Footer() {
           ))}
         </div>
         <div>
-          <h3>Chính sách</h3>
+          <h3>Thông tin & hỗ trợ</h3>
+          <Link href="/gioi-thieu">Về Quốc Hưng</Link>
+          <Link href="/du-an">Công trình thực tế</Link>
+          <Link href="/kien-thuc">Kiến thức kỹ thuật</Link>
           {Object.entries(policies)
             .filter(([s]) => s !== 'gioi-thieu')
-            .map(([slug, title]) => (
-              <Link key={slug} href={`/${slug}`}>
+            .map(([s, title]) => (
+              <Link href={`/${s}`} key={s}>
                 {title}
               </Link>
             ))}
         </div>
         <div>
-          <h3>Hỗ trợ kỹ thuật</h3>
-          <p>Cần chọn tải trọng hay cấu hình kết nối?</p>
+          <h3>Kết nối với chúng tôi</h3>
+          <p>Kinh doanh</p>
+          <a className="footer-phone" href={`tel:${site.phone}`}>
+            {site.phone}
+          </a>
+          <p>Kỹ thuật</p>
+          <a className="footer-phone" href={`tel:${site.technicalPhone}`}>
+            {site.technicalPhone}
+          </a>
+          <a href={`mailto:${site.email}`}>{site.email}</a>
+          <a href={site.map} target="_blank" rel="noopener noreferrer">
+            Chỉ đường đến Quốc Hưng ↗
+          </a>
           <Link className="footer-contact" href="/lien-he">
             Gửi yêu cầu tư vấn ↗
           </Link>
-          {site.phone && <a href={`tel:${site.phone}`}>{site.phone}</a>}
-          {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
-          <small>Kênh mạng xã hội: đang cập nhật.</small>
         </div>
       </div>
       <div className="container footer-bottom">
-        © {new Date().getFullYear()} Quốc Hưng · QHS Commerce <Link href="/admin">Quản trị</Link>
+        <span>© {new Date().getFullYear()} Cân điện tử Quốc Hưng</span>
+        <span>Chính xác · Bền bỉ · Tận tâm</span>
       </div>
     </footer>
   );
